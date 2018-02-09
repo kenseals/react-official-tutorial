@@ -20,24 +20,35 @@ class Board extends React.Component {
     );
   }
 
+  renderRow(start, total) {
+    const squares = total;
+    const row = [];
+    for (let i = start; i < start + squares; i++) {
+      row.push(this.renderSquare(i));
+    }
+    return (
+      <div className="board-row">
+        {row}
+      </div>
+    );
+  }
+
+  renderBoard(r) {
+    const rows = r;
+    const board = [];
+    for (let i = 0; i < rows; i++) {
+      let rowStart = i * rows;
+      board.push(this.renderRow(rowStart, rows));
+    }
+    return (
+      board
+    );
+  }
+
   render() {
     return (
       <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
+        {this.renderBoard(3)}
       </div>
     );
   }
@@ -91,7 +102,7 @@ class Game extends React.Component {
       const desc = move ?
         'Go to move #' + move + " (" + String(step.position) + ")":
         'Go to game start';
-      let isCurrent = move == this.state.stepNumber ? "current" : ""
+      let isCurrent = move === this.state.stepNumber ? "current" : ""
       return (
         <li key={move} className={['c-move', isCurrent].join(' ')}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>

@@ -75,7 +75,7 @@ class Game extends React.Component {
     const current = history[history.length -1];
     const squares = current.squares.slice();
     const position = calculatePosition(i);
-    if (calculateWinner(squares) || squares[i]) {
+    if (calculateConclusion(squares) || squares[i]) {
       return;
     }
     squares[i] = this.state.xIsNext ? 'X' : 'O';
@@ -105,7 +105,7 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const conclusion = calculateConclusion(current.squares);
 
     const moves = history.map((step, move) => {
       const desc = move ?
@@ -125,9 +125,13 @@ class Game extends React.Component {
 
     let status,
         winningSquares = [];
-    if (winner) {
-      status = 'Winner: ' + winner.winningValue;
-      winningSquares = winner.winningSquares;
+    if (conclusion) {
+      if (conclusion.winner) {
+        status = 'Winner: ' + conclusion.winner.winningValue;
+        winningSquares = conclusion.winner.winningSquares;
+      } else if (conclusion.draw) {
+        status = "Draw!";
+      }
     } else {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
@@ -183,7 +187,7 @@ function calculatePosition(square) {
   return [x, y];
 }
 
-function calculateWinner(squares) {
+function calculateConclusion(squares) {
   const lines = [
     [0, 1, 2],
     [3, 4, 5],
@@ -196,13 +200,21 @@ function calculateWinner(squares) {
   ];
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
+    const conclusion = {};
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      const winner = {
+      conclusion.winner = {
         winningSquares: lines[i],
         winningValue: squares[a]
       }
-      return winner;
+      return conclusion;
+    } else if (!squares.some(containsNull)) {
+      conclusion.draw = true;
+      return conclusion;
     }
   }
   return null;
+}
+
+function containsNull(item) {
+  return item === null;
 }
